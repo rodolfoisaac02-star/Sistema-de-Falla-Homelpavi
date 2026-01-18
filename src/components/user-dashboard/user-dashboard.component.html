@@ -1,0 +1,155 @@
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-3xl font-bold text-gray-800">Mis Reportes de Falla</h2>
+    <button (click)="showReportForm.set(true)" class="flex items-center bg-light-blue-600 hover:bg-light-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      Crear Nuevo Reporte
+    </button>
+  </div>
+
+  @if (userReports().length === 0) {
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay reportes</h3>
+      <p class="mt-1 text-sm text-gray-500">Crea tu primer reporte de falla para comenzar.</p>
+    </div>
+  } @else {
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <ul class="divide-y divide-gray-200">
+        @for(report of userReports(); track report.id) {
+          <li (click)="viewReportDetails(report)" class="p-4 hover:bg-light-blue-50 cursor-pointer transition duration-150 ease-in-out">
+            <div class="flex items-center justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-lg font-semibold text-light-blue-700 truncate">{{ report.title }}</p>
+                <p class="text-sm text-gray-500">Enviado a: {{ report.assignedToDept }} - {{ report.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span class="px-3 py-1 text-sm font-semibold rounded-full" 
+                  [class]="report.status === 'Terminado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+                  {{ report.status }}
+                </span>
+                @if (report.userConfirmation) {
+                  <span class="px-3 py-1 text-sm font-semibold rounded-full" 
+                    [class]="report.userConfirmation === 'Solventado' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'">
+                    {{ report.userConfirmation }}
+                  </span>
+                }
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</div>
+
+<!-- Create Report Modal -->
+@if (showReportForm()) {
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-auto p-8 border w-full max-w-lg shadow-lg rounded-md bg-white">
+      <div class="flex justify-between items-center pb-3">
+        <p class="text-2xl font-bold">Crear Reporte de Falla</p>
+        <button (click)="showReportForm.set(false)" class="text-gray-500 hover:text-gray-800">&times;</button>
+      </div>
+      <form (submit)="createReport()" class="space-y-4">
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700">Título del Reporte</label>
+          <input type="text" id="title" [(ngModel)]="newReportTitle" name="title" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500">
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700">Descripción Detallada de la Falla</label>
+          <textarea id="description" [(ngModel)]="newReportDescription" name="description" rows="4" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500"></textarea>
+        </div>
+        <div>
+          <label for="department" class="block text-sm font-medium text-gray-700">Enviar a Departamento</label>
+          <select id="department" [(ngModel)]="newReportAssignedToDept" name="department" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500">
+            @for(dept of departments; track dept) {
+              <option [value]="dept">{{ dept }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="userNotes" class="block text-sm font-medium text-gray-700">Nota Adicional (Opcional)</label>
+          <textarea id="userNotes" [(ngModel)]="newReportUserNotes" name="userNotes" rows="2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-4">
+          <button type="button" (click)="showReportForm.set(false)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-light-blue-600 text-white rounded-md hover:bg-light-blue-700">Enviar Reporte</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- View Report Details Modal -->
+@if (selectedReport(); as report) {
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+      <div class="flex justify-between items-center pb-3 border-b">
+        <h3 class="text-2xl font-bold text-light-blue-800">{{ report.title }}</h3>
+        <button (click)="selectedReport.set(null)" class="text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+      </div>
+      <div class="mt-4 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <p><strong>Fecha:</strong> {{ report.createdAt | date:'fullDate' }} a las {{ report.createdAt | date:'shortTime' }}</p>
+          <p><strong>Departamento Asignado:</strong> {{ report.assignedToDept }}</p>
+          <p><strong>Estado:</strong> <span class="font-semibold" [class]="report.status === 'Terminado' ? 'text-green-600' : 'text-yellow-600'">{{ report.status }}</span></p>
+          <p><strong>Confirmación:</strong> <span class="font-semibold" [class]="report.userConfirmation === 'Solventado' ? 'text-blue-600' : report.userConfirmation === 'No solventado' ? 'text-red-600' : 'text-gray-500'">{{ report.userConfirmation ?? 'Pendiente' }}</span></p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-md">
+            <h4 class="font-semibold">Descripción de la Falla:</h4>
+            <p class="text-gray-700 whitespace-pre-wrap">{{ report.description }}</p>
+        </div>
+        @if(report.userNotes) {
+            <div class="bg-gray-50 p-3 rounded-md">
+                <h4 class="font-semibold">Nota Adicional del Usuario:</h4>
+                <p class="text-gray-700 whitespace-pre-wrap">{{ report.userNotes }}</p>
+            </div>
+        }
+        @if(report.status === 'Terminado') {
+          <div class="bg-light-blue-50 p-4 rounded-lg border border-light-blue-200">
+            <h4 class="font-bold text-lg text-light-blue-900 mb-2">Respuesta del Departamento</h4>
+            @if(report.materialsUsed) {
+                <div>
+                    <h5 class="font-semibold">Materiales Utilizados:</h5>
+                    <p class="text-gray-700 whitespace-pre-wrap p-2 bg-white rounded">{{ report.materialsUsed }}</p>
+                </div>
+            }
+            @if(report.adminNotes) {
+                <div class="mt-2">
+                    <h5 class="font-semibold">Nota del Administrador:</h5>
+                    <p class="text-gray-700 whitespace-pre-wrap p-2 bg-white rounded">{{ report.adminNotes }}</p>
+                </div>
+            }
+          </div>
+          <div class="pt-4 border-t">
+            <p class="text-center font-semibold mb-2">¿La falla fue solventada satisfactoriamente?</p>
+            <div class="flex justify-center space-x-4">
+              <button (click)="updateUserConfirmation(report, 'Solventado')" 
+                      [disabled]="report.userConfirmation === 'Solventado'"
+                      class="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed">
+                Sí, Solventado
+              </button>
+              <button (click)="updateUserConfirmation(report, 'No solventado')" 
+                      [disabled]="report.userConfirmation === 'No solventado'"
+                      class="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed">
+                No, No Solventado
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="flex justify-end pt-4 mt-4 border-t">
+        <button (click)="selectedReport.set(null)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

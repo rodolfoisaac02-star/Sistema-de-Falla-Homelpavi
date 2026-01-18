@@ -1,0 +1,126 @@
+
+<div class="space-y-8">
+  <h2 class="text-3xl font-bold text-gray-800">Panel de Administración - {{ currentUser()?.department }}</h2>
+
+  <!-- Stats Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="bg-white p-4 rounded-lg shadow text-center">
+      <h3 class="text-sm font-medium text-gray-500">Reparado Hoy</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900">{{ reportsToday() }}</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow text-center">
+      <h3 class="text-sm font-medium text-gray-500">Reparado Semana</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900">{{ reportsThisWeek() }}</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow text-center">
+      <h3 class="text-sm font-medium text-gray-500">Reparado Mes</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900">{{ reportsThisMonth() }}</p>
+    </div>
+    <div class="bg-yellow-100 p-4 rounded-lg shadow text-center">
+      <h3 class="text-sm font-medium text-yellow-700">En Espera</h3>
+      <p class="mt-1 text-3xl font-semibold text-yellow-900">{{ pendingReports() }}</p>
+    </div>
+    <div class="bg-green-100 p-4 rounded-lg shadow text-center">
+      <h3 class="text-sm font-medium text-green-700">Terminados</h3>
+      <p class="mt-1 text-3xl font-semibold text-green-900">{{ completedReports() }}</p>
+    </div>
+  </div>
+  
+  <!-- Reports Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <h3 class="text-xl font-semibold p-4 border-b">Reportes Asignados</h3>
+    @if (departmentReports().length === 0) {
+      <p class="p-6 text-center text-gray-500">No hay reportes asignados a este departamento.</p>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confirmación</th>
+              <th class="relative px-6 py-3"><span class="sr-only">Ver</span></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for(report of departmentReports(); track report.id) {
+              <tr class="hover:bg-light-blue-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ report.title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ report.createdByName }} ({{report.createdByDepartment}})</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ report.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                        [class]="report.status === 'Terminado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+                    {{ report.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                        [class]="report.userConfirmation === 'Solventado' ? 'bg-blue-100 text-blue-800' : report.userConfirmation === 'No solventado' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'">
+                    {{ report.userConfirmation ?? 'N/A' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button (click)="viewReportDetails(report)" class="text-light-blue-600 hover:text-light-blue-900">Ver/Editar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+  
+  @if (isTelematicaAdmin()) {
+    <div class="bg-white rounded-lg shadow overflow-hidden p-4">
+      <h3 class="text-xl font-semibold mb-2">Gestión de Usuarios (Solo Telemática)</h3>
+      <p>Aquí iría el componente para crear, editar y cambiar claves de usuarios.</p>
+    </div>
+  }
+
+</div>
+
+<!-- Edit Report Modal -->
+@if (selectedReport(); as report) {
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+      <div class="flex justify-between items-center pb-3 border-b">
+        <h3 class="text-2xl font-bold text-light-blue-800">Gestionar Reporte: {{ report.title }}</h3>
+        <button (click)="selectedReport.set(null)" class="text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+      </div>
+      <div class="mt-4 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+        <div class="bg-gray-50 p-3 rounded-md">
+            <h4 class="font-semibold">Descripción de la Falla:</h4>
+            <p class="text-gray-700 whitespace-pre-wrap">{{ report.description }}</p>
+            @if(report.userNotes) {
+                <h4 class="font-semibold mt-2">Nota del Usuario:</h4>
+                <p class="text-gray-700 whitespace-pre-wrap">{{ report.userNotes }}</p>
+            }
+        </div>
+        <form (submit)="saveReportChanges()" class="space-y-4">
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700">Estado del Reporte</label>
+              <select id="status" [(ngModel)]="editStatus" name="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500">
+                <option value="En espera">En espera</option>
+                <option value="Terminado">Terminado</option>
+              </select>
+            </div>
+            <div>
+              <label for="materials" class="block text-sm font-medium text-gray-700">Materiales Usados</label>
+              <textarea id="materials" [(ngModel)]="editMaterials" name="materials" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500"></textarea>
+            </div>
+            <div>
+              <label for="adminNotes" class="block text-sm font-medium text-gray-700">Nota de Respuesta</label>
+              <textarea id="adminNotes" [(ngModel)]="editAdminNotes" name="adminNotes" rows="2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500"></textarea>
+            </div>
+            <div class="flex justify-end space-x-2 pt-4 border-t mt-4">
+              <button type="button" (click)="selectedReport.set(null)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+              <button type="submit" class="px-4 py-2 bg-light-blue-600 text-white rounded-md hover:bg-light-blue-700">Guardar Cambios</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

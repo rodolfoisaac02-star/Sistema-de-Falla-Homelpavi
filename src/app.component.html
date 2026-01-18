@@ -1,0 +1,41 @@
+
+<div class="flex flex-col min-h-screen">
+  @if (notification(); as notification) {
+    <app-notification [message]="notification.message" [type]="notification.type"></app-notification>
+  }
+
+  <header class="bg-light-blue-800 text-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z" />
+          </svg>
+          <h1 class="text-xl font-bold">Sistema de Reporte de Fallas</h1>
+        </div>
+        @if (currentUser(); as user) {
+          <div class="flex items-center space-x-4">
+            <div class="text-right">
+              <p class="font-semibold">{{ user.name }}</p>
+              <p class="text-sm text-light-blue-200">{{ user.department }}</p>
+            </div>
+            <button (click)="logout()" class="flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Finalizar Sesión</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="bg-light-blue-800 text-white text-center p-4 shadow-inner mt-auto">
+    <p>&copy; Sistema de seguimiento de Fallas Creado por el Dpto de Telemática Homelpavi 2026</p>
+  </footer>
+</div>

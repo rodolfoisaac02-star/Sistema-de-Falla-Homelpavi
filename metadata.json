@@ -1,0 +1,5 @@
+{
+  "name": "Sistema de Reporte de Fallas",
+  "description": "Una aplicación para crear, gestionar y dar seguimiento a informes de fallas y averías en diversas áreas de trabajo, con roles para usuarios, administradores de departamento y un super usuario.",
+  "requestFramePermissions": []
+}

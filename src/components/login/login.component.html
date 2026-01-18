@@ -1,0 +1,50 @@
+
+<div class="flex items-center justify-center min-h-[calc(100vh-150px)]">
+  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+    <div class="text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-light-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Iniciar Sesión
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Acceda a su cuenta del sistema de fallas
+      </p>
+    </div>
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="username" class="sr-only">Usuario</label>
+          <input id="username" name="username" type="text" [(ngModel)]="username" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Nombre de usuario">
+        </div>
+        <div>
+          <label for="password" class="sr-only">Contraseña</label>
+          <input id="password" name="password" type="password" [(ngModel)]="password" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Contraseña">
+        </div>
+      </div>
+      
+      @if (error()) {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span class="block sm:inline">{{ error() }}</span>
+        </div>
+      }
+
+      <div>
+        <button type="submit" 
+                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-light-blue-600 hover:bg-light-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-blue-500 transition duration-300">
+          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <svg class="h-5 w-5 text-light-blue-500 group-hover:text-light-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          Ingresar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
